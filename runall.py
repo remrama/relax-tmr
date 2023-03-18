@@ -20,7 +20,12 @@ def run_command(command):
         sys.exit()
 
 participants = utils.participant_values()
-participant_scripts = ["source2raw_eeg", "calc_hypno", "plot_hypno"]
+participant_scripts = [
+    "source2raw_eeg",
+    "calc_hypno",
+    "plot_hypno",
+    "calc_sstats",
+]
 surveys = ["Screening", "Initial", "Debriefing"]
 
 for s in tqdm(surveys, desc="surveys"):
@@ -38,4 +43,4 @@ for script in participant_scripts:
 #         command = f"python {filename}.py --participant {participant}"
 #         run_command(command)
 
-run_command("python venice_analysis.py")
+# run_command("python venice_analysis.py")

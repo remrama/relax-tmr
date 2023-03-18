@@ -19,7 +19,6 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-
 ################################################################################
 # SETUP
 ################################################################################
@@ -65,7 +64,17 @@ ax0.step(hypno_hrs, hypno_int, **step_kwargs)
 # proba.plot(kind="area", color=palette, figsize=(10, 5), alpha=0.8, stacked=True, lw=0)
 
 # cue_events = events.query("description.str.contains('Bell')")
-cue_events = events.query("description.str.startswith('relaxcue')")
+participants = utils.load_participants_file()
+tmr_condition = participants.loc[participant_id, "tmr_condition"]
+if tmr_condition == "relax":
+    cue_events = events.query("description.str.startswith('relaxcue')")
+    cue_color = "mediumpurple"
+    cue_text = "TMR Relaxation cues"
+elif tmr_condition == "story":
+    cue_events = events.query("description.str.startswith('venicecue')")
+    cue_color = "forestgreen"
+    cue_text = "TMR Story cues"
+
 cue_secs = cue_events["onset"].to_numpy()
 cue_hrs = cue_secs / 60 / 60
 
@@ -75,14 +84,11 @@ ax0.eventplot(
     lineoffsets=n_stages - 0.5,
     linelengths=1,
     linewidths=0.1,
-    colors="mediumpurple",
+    colors=cue_color,
     linestyles="solid",
 )
 
-ax0.text(
-    0, 1, "Relaxation cues", color="mediumpurple", ha="left", va="bottom", transform=ax0.transAxes
-)
-
+ax0.text(0, 1, cue_text, color=cue_color, ha="left", va="bottom", transform=ax0.transAxes)
 
 ## Probabilities
 probas = hypno[["proba_N1", "proba_N2", "proba_N3", "proba_R", "proba_W"]].T.to_numpy()
