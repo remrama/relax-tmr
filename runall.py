@@ -45,4 +45,7 @@ for script in participant_scripts:
 #         command = f"python {filename}.py --participant {participant}"
 #         run_command(command)
 
+run_command("python plot_pvt.py")
+run_command("python plot_alert.py")
+run_command("python plot_sstats.py")
 run_command("python plot_venice.py")
