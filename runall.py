@@ -21,6 +21,7 @@ def run_command(command):
 
 participants = utils.participant_values()
 participant_scripts = [
+    "source2raw_pvt",
     "source2raw_eeg",
     "calc_hypno",
     "plot_hypno",
@@ -44,4 +45,4 @@ for script in participant_scripts:
 #         command = f"python {filename}.py --participant {participant}"
 #         run_command(command)
 
-# run_command("python venice_analysis.py")
+run_command("python plot_venice.py")
