@@ -27,11 +27,11 @@ participant_scripts = [
     "calc_sstats",
     "calc_swaves",
 ]
-surveys = ["Screening", "Initial", "Debriefing"]
+surveys = ["Initial", "Debriefing"]
 
 for s in tqdm(surveys, desc="surveys"):
     command = f"python source2raw_qualtrics.py --survey {s}"
-    # run_command(command)
+    run_command(command)
 
 for script in participant_scripts:
     for p in tqdm(participants, desc=script):
