@@ -25,6 +25,7 @@ participant_scripts = [
     "calc_hypno",
     "plot_hypno",
     "calc_sstats",
+    "calc_swaves",
 ]
 surveys = ["Screening", "Initial", "Debriefing"]
 
