@@ -71,7 +71,7 @@ cued_desc = cued_desc.set_index("stage", append=True)
 # cued_epochs = melt.query("n_cues > 0")
 # cued_desc = cued_epochs.groupby(["participant_id", "stage"])["probability"].agg(["count", "mean", "std"])
 
-n3 = cued_desc.loc[(slice(None), "N2"), :].droplevel("stage")
+n3 = cued_desc.loc[(slice(None), "N3"), :].droplevel("stage")
 n3 = n3.join(participants["tmr_condition"])
 
 x_order = ["relax", "story"]
@@ -90,12 +90,12 @@ fig, ax = plt.subplots(figsize=(2, 3))
 
 bars = ax.bar(data=avgs, x="xval", height="mean", yerr="sem", color="white", linewidth=0.5, edgecolor="black")
 bars.errorbar.lines[2][0].set_capstyle("round")
-ax.scatter(data=n3, x="xval", y="mean", s="count", color="color", linewidth=0.5, edgecolor="black", alpha=0.8, zorder=5)
+ax.scatter(data=n3, x="xval", y="mean", s="count", color="color", linewidth=0.5, edgecolor="black", alpha=0.8, zorder=5, clip_on=False)
 
 ax.set_ylabel("Probability of SWS during cue")
 ax.set_xlabel("TMR condition")
 ax.margins(x=0.2)
-ax.set_ybound(upper=0.44)
+ax.set_ybound(upper=1)
 ax.set_xticks(range(len(x_order)))
 ax.set_xticklabels(x_order)
 ax.tick_params(top=False, right=False, bottom=False)
