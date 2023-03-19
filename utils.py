@@ -57,10 +57,15 @@ def load_participants_file():
     return df
 
 def load_participant_palette():
-    df = load_participants_file().reset_index()
-    df["color"] = df.index.map(cc.cm.glasbey_dark)
-    palette = df.set_index("participant_id")["color"].to_dict()
-    return palette
+    # df = load_participants_file().reset_index()
+    # df["color"] = df.index.map(cc.cm.glasbey_dark)
+    # palette = df.set_index("participant_id")["color"].to_dict()
+    pp = load_participants_file()
+    relax = pp.query("tmr_condition == 'relax'").index.tolist()
+    story = pp.query("tmr_condition == 'story'").index.tolist()
+    relax_palette = {p: cc.cm.glasbey_cool(i) for i, p in enumerate(relax)}
+    story_palette = {p: cc.cm.glasbey_warm(i) for i, p in enumerate(story)}
+    return relax_palette | story_palette
 
 def participant_values():
     """Return a list of all valid participant values as integers. (sub-001 == key-value)"""

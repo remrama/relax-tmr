@@ -67,6 +67,8 @@ xvals = np.arange(yvals.size)
 
 figsize = (2, 3)
 
+
+
 lines_kwargs = dict(linewidths=0.5, zorder=3)
 bar_kwargs = {
     "width": 0.8,
@@ -85,6 +87,7 @@ scatter_kwargs = {
 }
 
 fig, ax = plt.subplots(figsize=figsize)
+ax.axhline(0, color="black", linewidth=1, linestyle="dashed")
 bars = ax.bar(xvals, yvals, yerr=yerrs, **bar_kwargs)
 bars.errorbar.lines[2][0].set_capstyle("round")
 
@@ -97,6 +100,7 @@ df_["xval"] = df_["tmr_condition"].map(lambda x: x_order.index(x))
 df_["xval"] += np.random.uniform(-jitter, jitter, size=len(df_))
 df_["color"] = df_["participant_id"].map(participant_palette)#.to_numpy()
 ax.scatter("xval", "mean", c="color", data=df_, **scatter_kwargs)
+
 
 a, b = df_.groupby("tmr_condition")["mean"].apply(list)
 d = pg.compute_effsize(a, b, paired=False, eftype="cohen")
@@ -128,7 +132,7 @@ ax.text(0.5, 1.05, text,
 # Aesthetics
 ax.set_xticks(xvals)
 ax.set_xticklabels(x_order)
-ax.margins(x=0.2)
+ax.margins(x=0.2, y=0.4)
 ax.tick_params(top=False, bottom=False)
 ax.set_ylabel(r"Post-sleep change in PVT reaction time ($\Delta$ ms)")
 ax.set_xlabel("TMR condition")
