@@ -45,7 +45,12 @@ for script in participant_scripts:
 #         command = f"python {filename}.py --participant {participant}"
 #         run_command(command)
 
-run_command("python plot_pvt.py")
-run_command("python plot_alert.py")
-run_command("python plot_sstats.py")
-run_command("python plot_venice.py")
+group_scripts = [
+    "plot_pvt",
+    "plot_alert",
+    "plot_sstats",
+    "plot_venice",
+    "plot_soundcheck",
+]
+for script in tqdm(group_scripts, desc="group analyses"):
+    run_command(f"python {script}.py")
