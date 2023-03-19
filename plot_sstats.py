@@ -22,6 +22,10 @@ df = pd.concat(
     ignore_index=True,
 )
 
+participants = utils.load_participants_file()
+df = df.set_index("participant_id").join(participants["tmr_condition"]).reset_index()
+
+cue_palette = dict(relax="mediumpurple", story="forestgreen")
 
 palette = utils.load_participant_palette()
 
@@ -29,9 +33,10 @@ g = sns.catplot(
     kind="bar",
     data=df,
     col="sleep_statistic",
+    hue="tmr_condition",
     x="sleep_statistic",
     y="value",
-    color="gainsboro",
+    palette=cue_palette,
     col_wrap=7,
     height=1,
     aspect=1,
