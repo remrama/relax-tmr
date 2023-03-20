@@ -49,13 +49,14 @@ for h_bf, e_bf in zip(hypno_bids_files, events_bids_files):
 # df = df.T.rename_axis("participant_id").rename_axis(None, axis=1).sort_index(axis=1)
 df = pd.concat(dataframe_list)
 
-desc = (df
-    .groupby(["participant_id", "description"])["n_cues"]
-    .agg(["count", "max", "mean", "std"])
-)
+# desc = (df
+#     .groupby(["participant_id", "description"])["n_cues"]
+#     .agg(["count", "max", "mean", "std"])
+# )
 
 proba_columns = [c for c in df if c.startswith("proba")]
 cued_epochs = df.query("n_cues > 0")
+
 cued_desc = cued_epochs.groupby("participant_id")[proba_columns].agg(["count", "mean", "std"])
 cued_desc = cued_desc.stack(0).reset_index(1).rename(columns={"level_1": "stage"})
 cued_desc["stage"] = cued_desc["stage"].str.split("_").str[-1]

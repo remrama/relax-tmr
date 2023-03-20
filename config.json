@@ -1,4 +1,10 @@
 {
     "bids_root": "../",
-    "mne_verbosity": "warning"
+    "mne_verbosity": "warning",
+
+    "cue_order" : ["relax", "story"],
+    "cue_palette": {
+        "relax": "mediumpurple",
+        "story": "forestgreen"
+    }
 }

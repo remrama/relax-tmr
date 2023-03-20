@@ -3,15 +3,14 @@ import argparse
 from pathlib import Path
 
 from bids import BIDSLayout
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 
 import utils
 
 
 bids_root = Path(utils.config["bids_root"])
-export_path = bids_root / "derivatives" / "sleepstats.png"
+export_path = bids_root / "derivatives" / "task-sleep_sstats.tsv"
+export_path_plot = bids_root / "derivatives" / "task-sleep_sstats.png"
 
 layout = BIDSLayout(bids_root, validate=False, derivatives=True)
 
@@ -22,8 +21,16 @@ df = pd.concat(
     ignore_index=True,
 )
 
-participants = utils.load_participants_file()
-df = df.set_index("participant_id").join(participants["tmr_condition"]).reset_index()
+table = df.pivot(index="participant_id", columns="sleep_statistic", values="value").rename_axis(None, axis=1)
+
+# Export
+utils.export_tsv(table, export_path)
+
+
+#### PLOTTING
+
+pp = utils.load_participants_file()
+plot_df = df.set_index("participant_id").join(pp["tmr_condition"]).reset_index()
 
 cue_palette = dict(relax="mediumpurple", story="forestgreen")
 
@@ -31,7 +38,7 @@ palette = utils.load_participant_palette()
 
 g = sns.catplot(
     kind="bar",
-    data=df,
+    data=plot_df,
     col="sleep_statistic",
     hue="tmr_condition",
     x="sleep_statistic",
@@ -47,4 +54,4 @@ g.set_xlabels("")
 
 
 # Export.
-utils.export_mpl(export_path)
+utils.export_mpl(export_path_plot)
