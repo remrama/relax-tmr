@@ -3,8 +3,12 @@
     "mne_verbosity": "warning",
 
     "cue_order" : ["relax", "story"],
+    "cue_labels": {
+        "relax": "Relaxation",
+        "story": "Story"
+    },
     "cue_palette": {
-        "relax": "mediumpurple",
-        "story": "forestgreen"
+        "relax": "#29cae7",
+        "story": "#fda094"
     }
 }

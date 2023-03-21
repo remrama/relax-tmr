@@ -31,8 +31,8 @@ eeg_channels = ["AFz", "Fz", "Fp1", "Fp2", "F3", "F4", "Cz", "C3", "C4"]
 bids_root = Path(utils.config["bids_root"])
 eeg_path = bids_root / participant_id / "eeg" / f"{participant_id}_{task_id}_eeg.edf"
 hypno_path = bids_root / "derivatives" / participant_id / f"{participant_id}_{task_id}_hypno.tsv"
-export_path_swaves = bids_root / "derivatives" / participant_id / f"{participant_id}_{task_id}_swaves.tsv"
-export_path_swsync = bids_root / "derivatives" / participant_id / f"{participant_id}_{task_id}_swsync.tsv"
+export_path_swaves = bids_root / "derivatives" / participant_id / f"{participant_id}_{task_id}_waves.tsv"
+export_path_swsync = bids_root / "derivatives" / participant_id / f"{participant_id}_{task_id}_sync.tsv"
 
 hypno = pd.read_csv(hypno_path, sep="\t")
 hypno_int = hypno["value"].to_numpy()
@@ -51,9 +51,16 @@ hypno_int_up = yasa.hypno_upsample_to_data(hypno_int, epoch_sfreq, raw)
 swd = yasa.sw_detect(
     raw,
     hypno=hypno_int_up,
-    include=(2, 3),
+    include=(0, 1, 2, 3, 4),
     freq_sw=(0.3, 1.5),
+    dur_neg=(0.3, 1.5),
+    dur_pos=(0.1, 1),
+    amp_neg=(40, 200),
+    amp_pos=(10, 150),
+    amp_ptp=(75, 350),
     coupling=True,
+    coupling_params={"freq_sp": (12, 16), "p": 0.05, "time": 1},
+    remove_outliers=False,
 )
 
 swp = swd.summary()

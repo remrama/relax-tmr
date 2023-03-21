@@ -19,16 +19,33 @@ def run_command(command):
     if result.returncode != 0:
         sys.exit()
 
+
 participants = utils.participant_values()
+
+surveys = [
+    "Initial",
+    "Debriefing",
+]
+
 participant_scripts = [
     "source2raw_pvt",
     "source2raw_eeg",
     "calc_hypno",
     "plot_hypno",
     "calc_sstats",
-    "calc_swaves",
+    "calc_waves",
+    "calc_lfp",
 ]
-surveys = ["Initial", "Debriefing"]
+
+group_scripts = [
+    "plot_pvt",
+    "plot_alert",
+    "plot_sstats",
+    "plot_venice",
+    "plot_soundcheck",
+    "plot_waves"
+]
+
 
 for s in tqdm(surveys, desc="surveys"):
     command = f"python source2raw_qualtrics.py --survey {s}"
@@ -38,19 +55,12 @@ for script in participant_scripts:
     for p in tqdm(participants, desc=script):
         run_command(f"python {script}.py --participant {p}")
 
-# for participant in (pbar1 := tqdm(all_participants)):
-#     pbar1.set_description(f"Processing {participant}")
-#     for filename in (pbar2 := tqdm(all_participant_scripts, leave=False)):
-#         pbar2.set_description(filename)
-#         command = f"python {filename}.py --participant {participant}"
-#         run_command(command)
-
-group_scripts = [
-    "plot_pvt",
-    "plot_alert",
-    "plot_sstats",
-    "plot_venice",
-    "plot_soundcheck",
-]
-for script in tqdm(group_scripts, desc="group analyses"):
-    run_command(f"python {script}.py")
+for script in (pbar := tqdm(group_scripts)):
+    pbar.set_description(script)
+    command = f"python {script}.py"
+    if script == "plot_waves":
+        for metric in ["Duration", "PTP", "Slope", "Frequency"]:
+            for channel in ["Fz", "AFz"]:
+                run_command(f"{command} -m {metric} -c {channel}")
+    else:
+        run_command(command)
