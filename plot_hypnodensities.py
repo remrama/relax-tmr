@@ -26,6 +26,7 @@ n_subjects = len(hypno_bids_files)
 
 export_path = root_dir / "derivatives" / "hypnodensities.png"
 
+cue_palette = utils.config["cue_palette"]
 participant_palette = utils.load_participant_palette()
 
 participant_conditions = utils.load_participants_file()["tmr_condition"].to_dict()
@@ -55,7 +56,6 @@ stage_palette = {
     "R": "indianred",
     "W": "gray",
 }
-cue_palette = dict(relax="mediumpurple", story="forestgreen")
 
 stage_colors = [stage_palette[s] for s in plot_order]
 stage_columns = [f"proba_{s}" for s in plot_order]

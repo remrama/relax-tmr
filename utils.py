@@ -30,7 +30,7 @@ def export_mpl(filepath, mkdir=True, close=True):
     if mkdir:
         filepath.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(filepath)
-    plt.savefig(filepath.with_suffix(".pdf"))
+    # plt.savefig(filepath.with_suffix(".pdf"))
     if close:
         plt.close()
 
@@ -70,6 +70,46 @@ def load_participant_palette():
 def participant_values():
     """Return a list of all valid participant values as integers. (sub-001 == key-value)"""
     return load_participants_file().index.str.split("-").str[-1].astype(int).tolist()
+
+
+def imputed_sum(row):
+    """Return nan if more than half of responses are missing."""
+    return np.nan if row.isna().mean() > 0.5 else row.fillna(row.mean()).sum()
+
+def agg_questionnaire_columns(df, questionnaire_name, delete_cols=False):
+    columns = [ c for c in df if c.startswith(f"{questionnaire_name}_") ]
+    assert columns
+    if questionnaire_name == "PANAS":
+        positive_probes = [1, 3, 5, 9, 10, 12, 14, 16, 17, 19]
+        positive_columns = [ c for c in columns if int(c.split("_")[-1]) in positive_probes ]
+        negative_columns = [ c for c in columns if c not in positive_columns ]
+        df["PANAS_pos"] = df[positive_columns].apply(imputed_sum, axis=1)
+        df["PANAS_neg"] = df[negative_columns].apply(imputed_sum, axis=1)
+        if delete_cols:
+            df = df.drop(columns=positive_columns + negative_columns)
+    elif questionnaire_name in ["STAI", "TAS"]:
+        df[questionnaire_name] = df[columns].apply(imputed_sum, axis=1)
+        if delete_cols:
+            df = df.drop(columns=columns)
+    return df
+
+
+def load_prepost_survey_diffs():
+    root_dir = Path(config["bids_root"])
+    import_path_pre = root_dir / "phenotype" / "initial.tsv"
+    import_path_post = root_dir / "phenotype" / "debriefing.tsv"
+    pre = pd.read_csv(import_path_pre, index_col="participant_id", sep="\t")
+    post = pd.read_csv(import_path_post, index_col="participant_id", sep="\t")
+    for survey in ["PANAS", "STAI"]:
+        pre = agg_questionnaire_columns(pre, survey, delete_cols=True)
+        post = agg_questionnaire_columns(post, survey, delete_cols=True)
+    pre = pre.select_dtypes("number").dropna(axis=1)
+    post = post.select_dtypes("number").dropna(axis=1)
+    overlapping_cols = list(set(pre.columns) & set(post.columns))
+    diff = post[overlapping_cols] - pre[overlapping_cols]
+    meta = import_json(import_path_pre.with_suffix(".json"))
+    meta = {k: v for k, v in meta.items() if k in overlapping_cols}
+    return diff, meta
 
 
 ################################################################################

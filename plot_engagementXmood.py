@@ -56,14 +56,19 @@ ycolumn_choices = [
 parser = argparse.ArgumentParser()
 parser.add_argument("-x", "--xcolumn", type=str, default="Enjoyable", choices=xcolumn_choices)
 parser.add_argument("-y", "--ycolumn", type=str, default="Pleasure_1", choices=ycolumn_choices)
+parser.add_argument("-d", "--diffs", action="store_true")
 args = parser.parse_args()
 
 xcolumn = args.xcolumn
 ycolumn = args.ycolumn
+use_diffs = args.diffs
 
 root_dir = Path(utils.config["bids_root"])
 import_path = root_dir / "phenotype" / "debriefing.tsv"
-export_path = root_dir / "derivatives" / "engagementXmood.png"
+if use_diffs:
+    export_path = root_dir / "derivatives" / f"engagementXmood-{ycolumn}XDIFF{xcolumn}.png"
+else:
+    export_path = root_dir / "derivatives" / f"engagementXmood-{ycolumn}X{xcolumn}.png"
 
 # layout = BIDSLayout(root_dir, validate=False)
 # bids_file = layout.get(suffix="debriefing", extension="tsv")[0]
@@ -74,21 +79,13 @@ meta = utils.import_json(import_path.with_suffix(".json"))
 participants = utils.load_participants_file()
 df = df.join(participants)
 
-
-def imputed_sum(row):
-    """Return nan if more than half of responses are missing."""
-    return np.nan if row.isna().mean() > 0.5 else row.fillna(row.mean()).sum()
-
 for survey in ["PANAS", "STAI", "TAS"]:
-    columns = [ c for c in df if c.startswith(f"{survey}_") ]
-    if survey == "PANAS":
-        positive_probes = [1, 3, 5, 9, 10, 12, 14, 16, 17, 19]
-        positive_columns = [ c for c in columns if int(c.split("_")[-1]) in positive_probes ]
-        negative_columns = [ c for c in columns if c not in positive_columns ]
-        df["PANAS_pos"] = df[positive_columns].apply(imputed_sum, axis=1)
-        df["PANAS_neg"] = df[negative_columns].apply(imputed_sum, axis=1)
-    elif survey in ["STAI", "TAS"]:
-        df[survey] = df[columns].apply(imputed_sum, axis=1)
+    df = utils.agg_questionnaire_columns(df, survey, delete_cols=True)
+
+if use_diffs:
+    diffs, _ = utils.load_prepost_survey_diffs()
+    # diffs = diffs.join(participants["tmr_condition"])
+    df[ycolumn] = diffs[ycolumn]
 
 
 figsize = (2, 2)
@@ -110,7 +107,6 @@ for cue, cue_df in df.groupby("tmr_condition"):
     yvals = cue_df[ycolumn].to_numpy()
 
     stat = pg.corr(xvals, yvals, method=corr_method)
-    print(stat)
     r, p = stat.loc[corr_method, ["r", "p-val"]]
     cue_df["color"] = cue_df.index.map(participant_palette)
     ax.scatter(xcolumn, ycolumn, c="color", data=cue_df, **scatter_kwargs)
@@ -142,9 +138,14 @@ if ycolumn == "Arousal_1":
 elif ycolumn == "Pleasure_1":
     ylabel = "Morning affective pleasure\n" + r"Negative $\leftarrow$     $\rightarrow$ Positive"
 else:
-    ylabel = meta[ycolumn]["Probe"]
+    try:
+        ylabel = meta[ycolumn]["Probe"]
+    except:
+        ylabel = ycolumn
 ax.set_ylabel(ylabel)
 
+if use_diffs:
+    ylabel = r"$\Delta$ " + ylabel 
 xlabel = meta[xcolumn]["Probe"]
 xlabel = xlabel.replace("Overall, ", "").capitalize()
 xlabel = textwrap.fill(xlabel, 30)
@@ -166,4 +167,4 @@ ax.set_xticklabels(xticklabels)
 # ax.set_xlabel("TMR condition")
 
 # Export.
-# utils.export_mpl(export_path)
+utils.export_mpl(export_path)

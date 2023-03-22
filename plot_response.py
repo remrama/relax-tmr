@@ -29,7 +29,7 @@ column = args.column
 
 root_dir = Path(utils.config["bids_root"])
 import_path = root_dir / "phenotype" / "debriefing.tsv"
-export_path = root_dir / "derivatives" / f"alertness-{column}.png"
+export_path = root_dir / "derivatives" / f"response-{column}.png"
 
 # layout = BIDSLayout(root_dir, validate=False)
 # bids_file = layout.get(suffix="debriefing", extension="tsv")[0]
@@ -39,6 +39,9 @@ meta = utils.import_json(import_path.with_suffix(".json"))
 
 participants = utils.load_participants_file()
 df = df.join(participants)
+
+for survey in ["PANAS", "STAI", "TAS"]:
+    df = utils.agg_questionnaire_columns(df, survey, delete_cols=True)
 
 desc = (df
     .groupby("tmr_condition")[column]
@@ -120,7 +123,11 @@ ax.margins(x=0.2)
 ax.tick_params(top=False, bottom=False)
 if column.startswith("Alertness"):
     ax.set_ybound(upper=100)
-ax.set_ylabel(meta[column]["Probe"])
+try:
+    ylabel = meta[column]["Probe"]
+except:
+    ylabel = column
+ax.set_ylabel(ylabel)
 ax.set_xlabel("TMR condition")
 
 # Export.
