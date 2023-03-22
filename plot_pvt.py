@@ -1,4 +1,4 @@
-"""Analyze PVT, pre/post analyze and plot."""
+"""Plot PVT."""
 from pathlib import Path
 
 from bids import BIDSLayout
@@ -18,6 +18,7 @@ utils.set_matplotlib_style()
 cue_order = utils.config["cue_order"]
 cue_palette = utils.config["cue_palette"]
 participant_palette = utils.load_participant_palette()
+cue_labels = utils.config["cue_labels"]
 
 jitter = 0.1
 np.random.seed(1)
@@ -58,7 +59,7 @@ df["color"] = df.index.map(participant_palette)
 
 fig, ax = plt.subplots(figsize=figsize)
 
-ax.axhline(0, color="black", linewidth=1, linestyle="dashed")
+# ax.axhline(0, color="black", linewidth=1, linestyle="dashed")
 
 bars = ax.bar(data=desc, x="xval", height="mean", yerr="sem", color="color", **bar_kwargs)
 bars.errorbar.lines[2][0].set_capstyle("round")
@@ -68,10 +69,11 @@ ax.scatter(data=df, x="xval", y="mean", c="color", **scatter_kwargs)
 
 
 a, b = df.groupby("tmr_condition")["mean"].apply(list)
-d = pg.compute_effsize(a, b, paired=False, eftype="cohen")
+d = abs(pg.compute_effsize(a, b, paired=False, eftype="cohen"))
 color = "black"
+yline = 0.9
 ax.hlines(
-    y=1.05,
+    y=yline,
     xmin=desc.at[cue_order[0], "xval"],
     xmax=desc.at[cue_order[1], "xval"],
     linewidth=0.5,
@@ -84,8 +86,8 @@ ax.hlines(
 #     ptext = "*" * sum([ p<cutoff for cutoff in (0.05, 0.01, 0.001) ])
 # else:
 #     ptext = fr"$p={p:.2f}$".replace("0", "", 1)
-text = fr"$d={d:.2f}$".replace("0", "", 1)
-ax.text(0.5, 1.05, text,
+text = fr"$d={d:.02f}$"
+ax.text(0.5, yline, text,
     color=color,
     transform=ax.transAxes,
     ha="center",
@@ -94,11 +96,12 @@ ax.text(0.5, 1.05, text,
 
 # Aesthetics
 ax.set_xticks(desc.loc[cue_order, "xval"].to_numpy())
-ax.set_xticklabels(cue_order)
+ax.set_xticklabels([cue_labels[c] for c in cue_order])
 ax.margins(x=0.2, y=0.4)
 ax.tick_params(top=False, bottom=False)
-ax.set_ylabel(r"Post-sleep change in PVT reaction time ($\Delta$ ms)")
-ax.set_xlabel("TMR condition")
+ax.set_ylabel("PVT reaction time (ms)")
+# ax.set_ylabel(r"Post-sleep change in PVT reaction time ($\Delta$ ms)")
+ax.set_xlabel("TMR cue sounds")
 
 # Export.
 utils.export_mpl(export_path)

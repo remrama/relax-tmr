@@ -31,9 +31,9 @@ layout = BIDSLayout(bids_root, validate=False)
 # bids_file = layout.get(subject=participant, task="sleep", suffix="eeg", extension="fif")[0]
 # pattern = "derivatives/sub-{subject}/sub-{subject}_task-{task}_hypno.tsv"
 # export_path = Path(layout.build_path(bids_file.entities, pattern, validate=False))
-bids_file = layout.get(suffix="screening", extension="tsv")[0]
-bids_file = layout.get(suffix="initial", extension="tsv")[0]
-bids_file = layout.get(suffix="debriefing", extension="tsv")[0]
+bids_file1 = layout.get(suffix="screening", extension="tsv")[0]
+bids_file2 = layout.get(suffix="initial", extension="tsv")[0]
+bids_file3 = layout.get(suffix="debriefing", extension="tsv")[0]
 df = bids_file.get_df()
 
 
@@ -67,7 +67,7 @@ for survey in ["PANAS", "STAI", "TAS"]:
         positive_columns = [ c for c in columns if int(c.split("_")[-1]) in positive_probes ]
         negative_columns = [ c for c in columns if c not in positive_columns ]
         df["PANAS_pos"] = df[positive_columns].apply(imputed_sum, axis=1)
-        df["PANAS_neg"] = df[positive_columns].apply(imputed_sum, axis=1)
+        df["PANAS_neg"] = df[negative_columns].apply(imputed_sum, axis=1)
     elif survey in ["STAI", "TAS"]:
         df[survey] = df[columns].apply(imputed_sum, axis=1)
     else:
@@ -108,7 +108,7 @@ probes = {
         "Distracted", # how distracted were you while completing the relaxation task? 1-7
         "Enjoyable", # how enjoyable did you find the relaxation task? 1-7
         "Motivated", # how motivated were you to do well on the relaxation task? 1-7
-        # "Q217", # how relaxed were you while completing the relaxation task? 1-7
+        "Relaxed", # how relaxed were you while completing the relaxation task? 1-7
     ],
 
     "dreaming": [

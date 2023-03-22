@@ -36,6 +36,6 @@ desc = df.groupby(level=["participant_id", "acquisition_id"])["rt"].describe()
 
 pre = desc.loc[(slice(None), "acq-pre", slice(None)), :].droplevel("acquisition_id")
 post = desc.loc[(slice(None), "acq-post", slice(None)), :].droplevel("acquisition_id")
-diff = post - pre
+# diff = post - pre
 
-utils.export_tsv(diff, export_path)
+utils.export_tsv(post, export_path)

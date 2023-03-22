@@ -20,6 +20,7 @@ sstat = args.sstat
 
 cue_order = utils.config["cue_order"]
 cue_palette = utils.config["cue_palette"]
+cue_labels = utils.config["cue_labels"]
 participant_palette = utils.load_participant_palette()
 
 figsize = (2.5, 3)
@@ -67,7 +68,7 @@ bars.errorbar.lines[2][0].set_capstyle("round")
 ax.scatter(data=df, x="xval", y=sstat, color="color", **scatter_kwargs)
 
 ax.set_xticks(range(len(cue_order)))
-ax.set_xticklabels(cue_order)
+ax.set_xticklabels([cue_labels[x] for x in cue_order])
 ax.margins(x=0.2)
 # ax.set_ybound(upper=100)
 ax.tick_params(top=False, bottom=False, right=False)

@@ -143,7 +143,7 @@ ax.hlines(
 #     ptext = "*" * sum([ p<cutoff for cutoff in (0.05, 0.01, 0.001) ])
 # else:
 #     ptext = fr"$p={p:.2f}$".replace("0", "", 1)
-text = fr"$d={d:.2f}$".replace("0", "", 1)
+text = fr"$d={d:.02f}$"
 ax.text(0.5, ybar, text,
     color=color,
     transform=ax.transAxes,
