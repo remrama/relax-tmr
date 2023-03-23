@@ -66,7 +66,7 @@ use_diffs = args.diffs
 root_dir = Path(utils.config["bids_root"])
 import_path = root_dir / "phenotype" / "debriefing.tsv"
 if use_diffs:
-    export_path = root_dir / "derivatives" / f"engagementXmood-{ycolumn}XDIFF{xcolumn}.png"
+    export_path = root_dir / "derivatives" / f"engagementXmood-{ycolumn}DIFFX{xcolumn}.png"
 else:
     export_path = root_dir / "derivatives" / f"engagementXmood-{ycolumn}X{xcolumn}.png"
 

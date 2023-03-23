@@ -35,7 +35,7 @@ participant_conditions = utils.load_participants_file()["tmr_condition"].to_dict
 # stage_labels = ["SWS", "N2", "N1", "REM", "Wake"]
 # n_stages = len(stage_order)
 
-figsize = (5, n_subjects * 0.8)
+figsize = (5, n_subjects * 0.7)
 
 fig, axes = plt.subplots(
     nrows=n_subjects,
@@ -60,7 +60,7 @@ stage_palette = {
 stage_colors = [stage_palette[s] for s in plot_order]
 stage_columns = [f"proba_{s}" for s in plot_order]
 alpha = 0.9
-cue_height = 0.2
+cue_height = 0.3
 n_stages = len(plot_order)
 
 for ax, h_bf, e_bf in zip(axes, hypno_bids_files, events_bids_files):
@@ -122,7 +122,7 @@ legend = legend_ax.legend(
     handles=legend_handles,
     title="Sleep Stage",
     loc="lower center",
-    bbox_to_anchor=(0.5, 1.5),
+    bbox_to_anchor=(0.65, 1.5),
     # handlelength=1, handleheight=.3,
     # handletextpad=,
     borderaxespad=0,
@@ -132,8 +132,8 @@ legend = legend_ax.legend(
     # fontsize=6,
 )
 
-legend_ax.text(0.25, 1.25, "TMR Relaxation cues", color=cue_palette["relax"], ha="center", va="bottom", transform=legend_ax.transAxes)
-legend_ax.text(0.75, 1.25, "TMR Story cues", color=cue_palette["story"], ha="center", va="bottom", transform=legend_ax.transAxes)
+legend_ax.text(0.0, 1.9, "TMR Relaxation cues", color=cue_palette["relax"], ha="left", va="bottom", transform=legend_ax.transAxes)
+legend_ax.text(0.0, 1.6, "TMR Story cues", color=cue_palette["story"], ha="left", va="bottom", transform=legend_ax.transAxes)
 
 
 fig.align_ylabels()

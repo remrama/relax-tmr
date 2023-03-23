@@ -47,23 +47,23 @@ group_scripts = [
 ]
 
 
-# for s in tqdm(surveys, desc="surveys"):
-#     command = f"python source2raw_qualtrics.py --survey {s}"
-#     run_command(command)
+for s in tqdm(surveys, desc="surveys"):
+    command = f"python source2raw_qualtrics.py --survey {s}"
+    run_command(command)
 
-# for script in participant_scripts:
-#     for p in tqdm(participants, desc=script):
-#         run_command(f"python {script}.py --participant {p}")
+for script in participant_scripts:
+    for p in tqdm(participants, desc=script):
+        run_command(f"python {script}.py --participant {p}")
 
-# for script in (pbar := tqdm(group_scripts)):
-#     pbar.set_description(script)
-#     command = f"python {script}.py"
-#     if script == "plot_waves":
-#         for metric in ["Duration", "PTP", "Slope", "Frequency"]:
-#             for channel in ["Fz", "AFz"]:
-#                 run_command(f"{command} -m {metric} -c {channel}")
-#     else:
-#         run_command(command)
+for script in (pbar := tqdm(group_scripts)):
+    pbar.set_description(script)
+    command = f"python {script}.py"
+    if script == "plot_waves":
+        for metric in ["Duration", "PTP", "Slope", "Frequency"]:
+            for channel in ["Fz", "AFz"]:
+                run_command(f"{command} -m {metric} -c {channel}")
+    else:
+        run_command(command)
 
 for y in [
     "Arousal_1", # rate your current level of Arousal (slider)

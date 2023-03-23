@@ -107,7 +107,7 @@ scatter_data = (pp_avgs
     .query(f"Channel=='{channel}'")
 )
 
-figsize = (2, 3)
+figsize = (1.5, 2.5)
 
 fig, ax = plt.subplots(figsize=figsize)
 for cue in cue_order:
@@ -126,38 +126,58 @@ ax.scatter(data=scatter_data, x="xval", y=metric, c="color", **scatter_kwargs)
 
 
 a, b = scatter_data.groupby("tmr_condition")[metric].apply(list)
-d = abs(pg.compute_effsize(a, b, paired=False, eftype="cohen"))
-color = "black"
+ttest = pg.ttest(a, b, paired=False)
+mwu = pg.mwu(a, b)
+d = abs(ttest.at["T-test", "cohen-d"])
+
+p = ttest.at["T-test", "p-val"]
+
 ybar = 0.9
-ax.hlines(
+utils.draw_significance_bar(
+    ax=ax,
+    x1=0,
+    x2=1,
     y=ybar,
-    xmin=errorbar_data.at[cue_order[0], "xval"],
-    xmax=errorbar_data.at[cue_order[1], "xval"],
-    linewidth=0.5,
-    color=color,
-    capstyle="round",
-    transform=ax.get_xaxis_transform(),
-    clip_on=False,
+    p=p,
+    height=0.02,
+    caplength=None,
+    linewidth=1,
 )
+# ax.hlines(
+#     y=ybar,
+#     xmin=errorbar_data.at[cue_order[0], "xval"],
+#     xmax=errorbar_data.at[cue_order[1], "xval"],
+#     linewidth=0.5,
+#     color=color,
+#     capstyle="round",
+#     transform=ax.get_xaxis_transform(),
+#     clip_on=False,
+# )
 # if p < 0.05:
 #     ptext = "*" * sum([ p<cutoff for cutoff in (0.05, 0.01, 0.001) ])
 # else:
 #     ptext = fr"$p={p:.2f}$".replace("0", "", 1)
+color = "black" if p < 0.05 else "gainsboro"
 text = fr"$d={d:.02f}$"
-ax.text(0.5, ybar, text,
+ax.text(0.5, ybar + 0.025, text,
     color=color,
     transform=ax.transAxes,
     ha="center",
     va="bottom",
 )
 
-ax.set_xlabel("TMR condition")
+
+
+ax.set_xlabel("TMR Cues")
 ax.set_xticks(range(len(cue_order)))
 ax.set_xticklabels([cue_labels[c] for c in cue_order])
 ax.set_ylabel(ylabels[metric])
-ax.tick_params(bottom=False, top=False)
-ax.margins(x=0.4)
 ax.set_ylim(*ylimits[metric])
-
+ax.tick_params(bottom=False, top=False, right=False)
+# ax.tick_params(direction="out")
+ax.grid(False)
+ax.spines[["top", "right", "bottom"]].set_visible(False)
+ax.spines[["left","bottom"]].set_position(("outward", 5))
+ax.margins(x=0.4)
 
 utils.export_mpl(export_path)

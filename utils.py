@@ -244,13 +244,32 @@ def cmap2hex(cmap, n_intervals) -> list:
         hex_codes.append(hex_code)
     return hex_codes
 
+def draw_significance_bar(ax, x1, x2, y, p, height=0.1, linewidth=1, caplength=None, color=None):
+    """x1, x2 in data coords; y in axes coords"""
+    stars = "*" * sum(p < cutoff for cutoff in (0.05, 0.01, 0.001))
+    if color is None:
+        color = "black" if stars else "gainsboro"
+    x_coords = [x1, x1, x2, x2]
+    y_coords = [y, y+height, y+height, y]
+    ax.plot(x_coords, y_coords, color=color, linewidth=linewidth, transform=ax.get_xaxis_transform())
+    if caplength is not None:
+        for x in [x1, x2]:
+            cap_x = [x-caplength/2, x+caplength/2]
+            cap_y = [y, y]
+            ax.plot(cap_x, cap_y, color=color, linewidth=linewidth, transform=ax.get_xaxis_transform())
+    if stars:
+        x_txt = (x1+x2) / 2
+        # ax.text(x_txt, y, stars, fontsize=10, color=color,
+        ax.text(x_txt, y + 0.05, stars, fontsize=10, color=color,
+            ha="center", va="bottom", transform=ax.get_xaxis_transform())
+
 def set_matplotlib_style(mpl_style="technical"):
     if mpl_style == "technical":
-        plt.rcParams["savefig.dpi"] = 600
-        plt.rcParams["interactive"] = True
+        plt.rcParams["savefig.dpi"] = 1000
+        # plt.rcParams["interactive"] = True
         plt.rcParams["figure.constrained_layout.use"] = True
-        plt.rcParams["font.family"] = "Times New Roman"
-        # plt.rcParams["font.sans-serif"] = "Arial"
+        # plt.rcParams["font.family"] = "Times New Roman"
+        plt.rcParams["font.sans-serif"] = "Arial"
         plt.rcParams["mathtext.fontset"] = "custom"
         plt.rcParams["mathtext.rm"] = "Times New Roman"
         plt.rcParams["mathtext.cal"] = "Times New Roman"
