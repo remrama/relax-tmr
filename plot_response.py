@@ -57,7 +57,7 @@ xvals = np.arange(yvals.size)
 color = desc.index.map(cue_palette)
 
 
-figsize = (2, 3)
+figsize = (1.7, 2.5)
 
 lines_kwargs = dict(linewidths=0.5, zorder=3)
 bar_kwargs = {
@@ -89,27 +89,29 @@ df["color"] = df.index.map(participant_palette)#.to_numpy()
 ax.scatter("xval", column, c="color", data=df, **scatter_kwargs)
 
 a, b = df.groupby("tmr_condition")[column].apply(list)
-d = abs(pg.compute_effsize(a, b, paired=False, eftype="cohen"))
-# p = wilcoxon.at["Wilcoxon", "p-val"]
+ttest = pg.ttest(a, b, paired=False)
+mwu = pg.mwu(a, b)
+d = abs(ttest.at["T-test", "cohen-d"])
+p = ttest.at["T-test", "p-val"]
 # pcolor ="black" if p < 0.1 else "gainsboro"
-color = "black"
-yline = 0.9
-ax.hlines(
-    y=yline,
-    xmin=xvals[0],
-    xmax=xvals[1],
-    linewidth=0.5,
-    color=color,
-    capstyle="round",
-    transform=ax.get_xaxis_transform(),
-    clip_on=False,
+ybar = 0.9
+utils.draw_significance_bar(
+    ax=ax,
+    x1=0,
+    x2=1,
+    y=ybar,
+    p=p,
+    height=0.02,
+    caplength=None,
+    linewidth=1,
 )
 # if p < 0.05:
 #     ptext = "*" * sum([ p<cutoff for cutoff in (0.05, 0.01, 0.001) ])
 # else:
 #     ptext = fr"$p={p:.2f}$".replace("0", "", 1)
+color = "black" if p < 0.05 else "gainsboro"
 text = fr"$d={d:.02f}$"
-ax.text(0.5, yline, text,
+ax.text(0.5, ybar + 0.025, text,
     color=color,
     transform=ax.transAxes,
     ha="center",
@@ -117,18 +119,24 @@ ax.text(0.5, yline, text,
 )
 
 # Aesthetics
-ax.set_xticks(xvals)
-ax.set_xticklabels([cue_labels[c] for c in cue_order])
-ax.margins(x=0.2)
-ax.tick_params(top=False, bottom=False)
 if column.startswith("Alertness"):
     ax.set_ybound(upper=100)
 try:
     ylabel = meta[column]["Probe"]
 except:
     ylabel = column
+if column == "Alertness_1":
+    ylabel = "How alert are you this morning?"
 ax.set_ylabel(ylabel)
-ax.set_xlabel("TMR condition")
+ax.set_xlabel("TMR Cues")
+ax.tick_params(top=False, bottom=False, right=False)
+ax.grid(False)
+ax.set_xticks(xvals)
+ax.set_xticklabels([cue_labels[c] for c in cue_order])
+ax.margins(x=0.2)
+ax.spines[["top", "right"]].set_visible(False)
+# ax.spines[["left","bottom"]].set_position(("outward", 5))
+
 
 # Export.
 utils.export_mpl(export_path)

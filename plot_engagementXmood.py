@@ -88,15 +88,18 @@ if use_diffs:
     df[ycolumn] = diffs[ycolumn]
 
 
-figsize = (2, 2)
+figsize = (1.8, 1.8)
 corr_method = "spearman"
 scatter_kwargs = {
-    "s": 30,
+    "s": 50,
     "linewidths": 0.5,
     "edgecolors": "white",
     "clip_on": False,
     "zorder": 4,
-    "alpha": 0.9,
+    "alpha": 0.8,
+}
+plot_kwargs = {
+    "linewidth": 2,
 }
 
 fig, ax = plt.subplots(figsize=figsize)
@@ -115,7 +118,7 @@ for cue, cue_df in df.groupby("tmr_condition"):
     coef = np.polyfit(xvals, yvals, 1)
     poly1d_func = np.poly1d(coef)
     # ax.plot(x, y, "ko", ms=8, alpha=0.4)
-    ax.plot(xvals, poly1d_func(xvals), "-", color=cue_color, label=cue_labels[cue])
+    ax.plot(xvals, poly1d_func(xvals), "-", color=cue_color, label=cue_labels[cue], **plot_kwargs)
 
     ytext = 0.9 if cue == "relax" else 0.8
     xtext = 0.4
@@ -148,7 +151,7 @@ if use_diffs:
     ylabel = r"$\Delta$ " + ylabel 
 xlabel = meta[xcolumn]["Probe"]
 xlabel = xlabel.replace("Overall, ", "").capitalize()
-xlabel = textwrap.fill(xlabel, 30)
+xlabel = textwrap.fill(xlabel, 25)
 xticks_minor = [int(x) for x in meta[xcolumn]["Levels"]]
 xticks_major = [min(xticks_minor), max(xticks_minor)]
 xticklabels = [x.split("\n")[0] for x in meta[xcolumn]["Levels"].values() if "\n" in x]

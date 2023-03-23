@@ -129,7 +129,6 @@ a, b = scatter_data.groupby("tmr_condition")[metric].apply(list)
 ttest = pg.ttest(a, b, paired=False)
 mwu = pg.mwu(a, b)
 d = abs(ttest.at["T-test", "cohen-d"])
-
 p = ttest.at["T-test", "p-val"]
 
 ybar = 0.9
